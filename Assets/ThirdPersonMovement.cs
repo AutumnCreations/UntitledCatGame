@@ -5,22 +5,78 @@ using UnityEngine;
 public class ThirdPersonMovement : MonoBehaviour
 {
 
+    [SerializeField] bool debugMode = false;
+
+    [Header("Scene References")]
     [SerializeField] CharacterController controller;
     [SerializeField] Transform cam;
-    [SerializeField] float speed = 6f;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] LayerMask groundMask;
 
+    [Header("Player Base Stats")]
+    [SerializeField] float speed = 10f;
+    [SerializeField] float gravity = -9f;
     [SerializeField] float turnSmoothTime = 0.1f;
+    [SerializeField] float jumpPower = 5f;
+
+    [Header("Environmental Stats")]
+    [SerializeField] float distanceToGround = .4f;
+
 
     float turnSmoothVelocity;
+    bool isGrounded;
+    Vector3 velocity;
+
+    private void OnDrawGizmos()
+    {
+#if UNITY_EDITOR
+
+        if (debugMode)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(groundCheck.position, distanceToGround);
+        }
+
+#endif
+    }
 
     private void Start()
     {
+        //distanceToGround = GetComponent<Collider>().bounds.extents.y;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
+        isGrounded = Physics.CheckSphere(groundCheck.position, distanceToGround, groundMask);
 
+        CheckSprint();
+        HandleBaseMovement();
+        if (isGrounded && Input.GetButtonDown("Jump"))
+        {
+            print("Jump");
+            velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
+        }
+
+        HandleGravity();
+
+        print(isGrounded);
+        controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void HandleGravity()
+    {
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -.5f;
+            return;
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+    }
+
+    private void HandleBaseMovement()
+    {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -34,6 +90,18 @@ public class ThirdPersonMovement : MonoBehaviour
 
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * speed * Time.deltaTime);
+        }
+    }
+
+    private void CheckSprint()
+    {
+        if (isGrounded && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        {
+            speed = 15f;
+        }
+        else
+        {
+            speed = 10f;
         }
     }
 }
