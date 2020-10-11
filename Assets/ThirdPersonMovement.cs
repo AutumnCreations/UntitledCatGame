@@ -29,9 +29,12 @@ public class ThirdPersonMovement : MonoBehaviour
 
 
     float turnSmoothVelocity;
-    float speed = 10f;
+    float speed;
+    float idleAnimation = 0f;
+
     bool isGrounded;
     bool isIdle;
+
     Vector3 velocity;
     Vector3 currentSpeed;
 
@@ -72,27 +75,48 @@ public class ThirdPersonMovement : MonoBehaviour
         CheckSprint();
         CheckJump();
         HandleGravity();
-        if (lastState != currentState) { HandleAnimation(); }
+
+        //if (lastState != currentState) { HandleAnimation(); }
+        animator.SetBool("airborne", !isGrounded);
+
+        if (isIdle)
+        {
+            if (idleAnimation < 1f)
+            {
+                idleAnimation += .1f * Time.deltaTime;
+            }
+            else { idleAnimation = 0f; }
+            animator.SetFloat("idleAnimation", idleAnimation);
+        }
 
         animator.SetFloat("forwardSpeed", speed / runSpeed);
+
         //print(currentState);
     }
+
+    //private IEnumerator IdleAnimations()
+    //{
+    //    animator.SetFloat("idleAnimation", idleAnimation);
+    //    if (idleAnimation < 1f)
+    //    { idleAnimation = 1f; }
+    //    else { idleAnimation = 0f; }
+    //    yield return new WaitForSeconds(1.5f);
+    //}
 
     private void HandleAnimation()
     {
         //switch (currentState)
         //{
-        //    case State.Idle:
-        //        animator.SetTrigger("idle");
-        //        break;
-        //    case State.Walking:
-        //        animator.SetTrigger("walking");
-        //        break;
-        //    case State.Running:
-        //        animator.SetTrigger("running");
-        //        break;
+        //    //case State.Idle:
+        //    //    animator.SetTrigger("idle");
+        //    //    break;
+        //    //case State.Walking:
+        //    //    animator.SetTrigger("walking");
+        //    //    break;
+        //    //case State.Running:
+        //    //    animator.SetTrigger("running");
+        //    //    break;
         //    case State.Airborne:
-        //        animator.SetTrigger("airborne");
         //        break;
         //    default:
         //        break;
@@ -103,9 +127,21 @@ public class ThirdPersonMovement : MonoBehaviour
     {
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            print("Jump");
-            velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
+            animator.SetTrigger("jump");
+            print("Wait For Jump");
+            StartCoroutine(WaitForJump());
         }
+    }
+
+    private IEnumerator WaitForJump()
+    {
+        yield return new WaitForSeconds(.3f);
+        velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
+        print("Jump");
+
+        yield return new WaitForSeconds(.5f);
+        animator.SetTrigger("jump");
+        print("Airborne");
     }
 
     private void HandleGravity()
@@ -113,7 +149,6 @@ public class ThirdPersonMovement : MonoBehaviour
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-            return;
         }
         if (!isGrounded)
         {
@@ -131,7 +166,7 @@ public class ThirdPersonMovement : MonoBehaviour
 
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        isIdle = direction.magnitude >= 0.1f;
+        isIdle = direction.magnitude < 0.1f;
 
         if (direction.magnitude >= 0.1f)
         {
@@ -153,12 +188,12 @@ public class ThirdPersonMovement : MonoBehaviour
 
     private void CheckSprint()
     {
-        if (isGrounded && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) && isIdle))
+        if (isGrounded && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) && !isIdle))
         {
             currentState = State.Running;
             speed = runSpeed;
         }
-        else if (isGrounded && isIdle)
+        else if (isGrounded && !isIdle)
         {
             speed = walkSpeed;
         }

@@ -1718,7 +1718,7 @@ MonoBehaviour:
     m_MaxSpeed: 350
     m_AccelTime: 0.1
     m_DecelTime: 0.1
-    m_InputAxisName: 
+    m_InputAxisName: Mouse X
     m_InputAxisValue: 0
     m_InvertInput: 1
     m_MinValue: -180
@@ -2300,7 +2300,7 @@ Transform:
   m_LocalScale: {x: 28.785995, y: 28.785995, z: 28.785995}
   m_Children: []
   m_Father: {fileID: 1202075167}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!23 &389405603
 MeshRenderer:
@@ -3498,7 +3498,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-226498
+  m_Name: pb_Mesh15196
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4505,9 +4505,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1489365553}
   - {fileID: 389405602}
   - {fileID: 1839846551}
+  - {fileID: 1489365553}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4523,7 +4523,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c7e164979435924bafa34e09f590662, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   controller: {fileID: 1202075169}
   cam: {fileID: 963194228}
   freeLookCam: {fileID: 1570356753}
@@ -4562,7 +4562,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-224502
+  m_Name: pb_Mesh14978
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4816,7 +4816,7 @@ MonoBehaviour:
     m_MaxSpeed: 350
     m_AccelTime: 0.1
     m_DecelTime: 0.1
-    m_InputAxisName: 
+    m_InputAxisName: Mouse X
     m_InputAxisValue: 0
     m_InvertInput: 1
     m_MinValue: -180
@@ -4948,6 +4948,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cat Lite
+      objectReference: {fileID: 0}
+    - target: {fileID: 6772877430431638713, guid: 5013ac56e3a859448a6d9f0c8b37fa96,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6772877430431742081, guid: 5013ac56e3a859448a6d9f0c8b37fa96,
         type: 3}
@@ -5152,7 +5157,7 @@ PrefabInstance:
     - target: {fileID: 6772877430431742105, guid: 5013ac56e3a859448a6d9f0c8b37fa96,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6772877430431742105, guid: 5013ac56e3a859448a6d9f0c8b37fa96,
         type: 3}
@@ -5834,7 +5839,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-223156
+  m_Name: pb_Mesh14890
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6084,7 +6089,7 @@ MonoBehaviour:
     m_MaxSpeed: 350
     m_AccelTime: 0.1
     m_DecelTime: 0.1
-    m_InputAxisName: 
+    m_InputAxisName: Mouse X
     m_InputAxisValue: 0
     m_InvertInput: 1
     m_MinValue: -180
@@ -6267,7 +6272,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-232814
+  m_Name: pb_Mesh15208
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -19152,7 +19157,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1202075167}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1865136975
 GameObject:
@@ -19251,7 +19256,7 @@ MonoBehaviour:
     m_MaxSpeed: 350
     m_AccelTime: 0.1
     m_DecelTime: 0.1
-    m_InputAxisName: 
+    m_InputAxisName: Mouse X
     m_InputAxisValue: 0
     m_InvertInput: 1
     m_MinValue: -180
