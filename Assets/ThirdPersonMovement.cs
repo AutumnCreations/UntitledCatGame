@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Cinemachine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,11 +12,14 @@ public class ThirdPersonMovement : MonoBehaviour
     [Header("Scene References")]
     [SerializeField] CharacterController controller;
     [SerializeField] Transform cam;
+    [SerializeField] CinemachineFreeLook freeLookCam;
+    [SerializeField] Animator animator;
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundMask;
 
     [Header("Player Base Stats")]
-    [SerializeField] float speed = 10f;
+    [SerializeField] float walkSpeed = 10f;
+    [SerializeField] float runSpeed = 15f;
     [SerializeField] float gravity = -9f;
     [SerializeField] float turnSmoothTime = 0.1f;
     [SerializeField] float jumpPower = 5f;
@@ -24,8 +29,21 @@ public class ThirdPersonMovement : MonoBehaviour
 
 
     float turnSmoothVelocity;
+    float speed = 10f;
     bool isGrounded;
+    bool isIdle;
     Vector3 velocity;
+    Vector3 currentSpeed;
+
+    enum State
+    {
+        Idle,
+        Walking,
+        Running,
+        Airborne
+    }
+
+    State currentState;
 
     private void OnDrawGizmos()
     {
@@ -42,45 +60,78 @@ public class ThirdPersonMovement : MonoBehaviour
 
     private void Start()
     {
-        //distanceToGround = GetComponent<Collider>().bounds.extents.y;
+        currentState = State.Idle;
+        speed = 0f;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        isGrounded = Physics.CheckSphere(groundCheck.position, distanceToGround, groundMask);
-
-        CheckSprint();
+        State lastState = currentState;
         HandleBaseMovement();
+        CheckSprint();
+        CheckJump();
+        HandleGravity();
+        if (lastState != currentState) { HandleAnimation(); }
+
+        animator.SetFloat("forwardSpeed", speed / runSpeed);
+        //print(currentState);
+    }
+
+    private void HandleAnimation()
+    {
+        //switch (currentState)
+        //{
+        //    case State.Idle:
+        //        animator.SetTrigger("idle");
+        //        break;
+        //    case State.Walking:
+        //        animator.SetTrigger("walking");
+        //        break;
+        //    case State.Running:
+        //        animator.SetTrigger("running");
+        //        break;
+        //    case State.Airborne:
+        //        animator.SetTrigger("airborne");
+        //        break;
+        //    default:
+        //        break;
+        //}
+    }
+
+    private void CheckJump()
+    {
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
             print("Jump");
             velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
         }
-
-        HandleGravity();
-
-        print(isGrounded);
-        controller.Move(velocity * Time.deltaTime);
     }
 
     private void HandleGravity()
     {
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -.5f;
+            velocity.y = -2f;
             return;
         }
-
-        velocity.y += gravity * Time.deltaTime;
+        if (!isGrounded)
+        {
+            currentState = State.Airborne;
+            velocity.y += gravity * Time.deltaTime;
+        }
+        controller.Move(velocity * Time.deltaTime);
     }
 
     private void HandleBaseMovement()
     {
+        isGrounded = Physics.CheckSphere(groundCheck.position, distanceToGround, groundMask);
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+
+        isIdle = direction.magnitude >= 0.1f;
 
         if (direction.magnitude >= 0.1f)
         {
@@ -90,18 +141,26 @@ public class ThirdPersonMovement : MonoBehaviour
 
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * speed * Time.deltaTime);
+
+            currentState = State.Walking;
+
+            //freeLookCam.m_XAxis.Value = transform.rotation.y;
+            //print(transform.rotation.y);
         }
+        else { currentState = State.Idle; speed = 0f; }
+
     }
 
     private void CheckSprint()
     {
-        if (isGrounded && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        if (isGrounded && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) && isIdle))
         {
-            speed = 15f;
+            currentState = State.Running;
+            speed = runSpeed;
         }
-        else
+        else if (isGrounded && isIdle)
         {
-            speed = 10f;
+            speed = walkSpeed;
         }
     }
 }
