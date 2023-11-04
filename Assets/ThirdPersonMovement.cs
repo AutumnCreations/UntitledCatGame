@@ -1,7 +1,4 @@
-﻿using Cinemachine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 public class ThirdPersonMovement : MonoBehaviour
@@ -12,7 +9,6 @@ public class ThirdPersonMovement : MonoBehaviour
     [Header("Scene References")]
     [SerializeField] CharacterController controller;
     [SerializeField] Transform cam;
-    [SerializeField] CinemachineFreeLook freeLookCam;
     [SerializeField] Animator animator;
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundMask;
@@ -22,10 +18,14 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] float runSpeed = 15f;
     [SerializeField] float gravity = -9f;
     [SerializeField] float turnSmoothTime = 0.1f;
-    [SerializeField] float jumpPower = 5f;
+    //[SerializeField] float jumpPower = 5f;
 
     [Header("Environmental Stats")]
     [SerializeField] float distanceToGround = .4f;
+    [Header("Pickup and Drop")]
+    [SerializeField] Transform grabPoint;
+    [SerializeField] float pickupRange = 2f;
+    private Interactable currentHeldItem;
 
 
     float turnSmoothVelocity;
@@ -73,11 +73,11 @@ public class ThirdPersonMovement : MonoBehaviour
         State lastState = currentState;
         HandleBaseMovement();
         CheckSprint();
-        CheckJump();
+        //CheckJump();
         HandleGravity();
 
         //if (lastState != currentState) { HandleAnimation(); }
-        animator.SetBool("airborne", !isGrounded);
+        //animator.SetBool("airborne", !isGrounded);
 
         if (isIdle)
         {
@@ -92,7 +92,34 @@ public class ThirdPersonMovement : MonoBehaviour
         animator.SetFloat("forwardSpeed", speed / runSpeed);
 
         //print(currentState);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (grabPoint.childCount > 0)
+            {
+                DropItem();
+            }
+            else
+            {
+                AttemptPickup();
+            }
+        }
+
     }
+
+    //private void ApplyGravity()
+    //{
+    //    if (controller.isGrounded && verticalVelocity.y < 0)
+    //    {
+    //        verticalVelocity.y = -2f; // Some small value to ensure character is grounded
+    //    }
+    //    else
+    //    {
+    //        verticalVelocity.y += gravity * Time.deltaTime;
+    //    }
+
+    //    controller.Move(verticalVelocity * Time.deltaTime); // Apply gravity movement
+    //}
+
 
     //private IEnumerator IdleAnimations()
     //{
@@ -123,26 +150,26 @@ public class ThirdPersonMovement : MonoBehaviour
         //}
     }
 
-    private void CheckJump()
-    {
-        if (isGrounded && Input.GetButtonDown("Jump"))
-        {
-            animator.SetTrigger("jump");
-            print("Wait For Jump");
-            StartCoroutine(WaitForJump());
-        }
-    }
+    //private void CheckJump()
+    //{
+    //    if (isGrounded && Input.GetButtonDown("Jump"))
+    //    {
+    //        animator.SetTrigger("jump");
+    //        print("Wait For Jump");
+    //        StartCoroutine(WaitForJump());
+    //    }
+    //}
 
-    private IEnumerator WaitForJump()
-    {
-        yield return new WaitForSeconds(.3f);
-        velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
-        print("Jump");
+    //private IEnumerator WaitForJump()
+    //{
+    //    yield return new WaitForSeconds(.1f);
+    //    velocity.y = Mathf.Sqrt(jumpPower * -2 * gravity);
+    //    print("Jump");
 
-        yield return new WaitForSeconds(.5f);
-        animator.SetTrigger("jump");
-        print("Airborne");
-    }
+    //    yield return new WaitForSeconds(.3f);
+    //    animator.SetTrigger("jump");
+    //    print("Airborne");
+    //}
 
     private void HandleGravity()
     {
@@ -198,4 +225,28 @@ public class ThirdPersonMovement : MonoBehaviour
             speed = walkSpeed;
         }
     }
+
+    private void AttemptPickup()
+    {
+        if (currentHeldItem != null) return; // If already holding something, do nothing
+
+        Collider[] itemsInRange = Physics.OverlapSphere(transform.position, pickupRange);
+        foreach (Collider item in itemsInRange)
+        {
+            Interactable interactable = item.GetComponent<Interactable>();
+            if (interactable)
+            {
+                currentHeldItem = interactable;
+                interactable.PickUp(grabPoint);
+                break;
+            }
+        }
+    }
+
+    private void DropItem()
+    {
+        currentHeldItem.Drop();
+        currentHeldItem = null;
+    }
+
 }
